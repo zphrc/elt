@@ -35,7 +35,9 @@ services:
       - destination_postgres
     
   dbt:
-    image: ghcr.io/dbt-labs/dbt-postgres:1.9.latest
+    build:
+      context: ./custom_postgres
+      dockerfile: Dockerfile
     command:
       [
         "run",
@@ -48,9 +50,10 @@ services:
       - elt_network
     volumes:
       - ./custom_postgres:/dbt
-      - ~/.dbt:/root
+      - ./custom_postgres/profiles.yml:/root/profiles.yml
     depends_on:
-      - elt_script
+      elt_script:
+        condition: service_completed_successfully
     environment:
       DBT_PROFILE: custom_postgres
       DBT_TARGET: dev
